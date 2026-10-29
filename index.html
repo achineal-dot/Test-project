@@ -3,51 +3,331 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>나만의 업무 대시보드</title>
+  <title>개인 업무 대시보드</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background:
+        radial-gradient(circle at top, rgba(59,130,246,0.18), transparent 30%),
+        linear-gradient(180deg, #020817 0%, #0f172a 100%);
+    }
+    .glass {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.45);
+    }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-8">
-  <header class="flex justify-between items-center pb-6 border-b border-slate-700 mb-8">
-    <h1 class="text-2xl font-bold">💼 Personal Work Dashboard</h1>
-    <span id="clock" class="text-slate-400 font-mono"></span>
-  </header>
+<body class="min-h-screen text-slate-100 p-4 md:p-8">
+  <div class="max-w-7xl mx-auto">
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-slate-700 mb-8">
+      <div>
+        <p class="text-sm uppercase tracking-[0.2em] text-sky-300">Private Workspace</p>
+        <h1 class="text-3xl font-bold mt-2">💼 나만의 업무 대시보드</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="clock" class="text-slate-200 font-mono bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700"></div>
+        <button id="resetData" class="bg-slate-700 hover:bg-slate-600 text-sm px-3 py-2 rounded-lg transition">데이터 초기화</button>
+      </div>
+    </header>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- 오늘 할 일 섹션 -->
-    <section class="bg-slate-800 p-6 rounded-xl border border-slate-700">
-      <h2 class="text-lg font-semibold mb-4 text-sky-400">📝 오늘 집중 업무</h2>
-      <ul class="space-y-2 text-sm text-slate-300">
-        <li class="p-2 bg-slate-700/50 rounded">일일 업무 리포트 작성</li>
-        <li class="p-2 bg-slate-700/50 rounded">협력사 미팅 일정 조율</li>
-        <li class="p-2 bg-slate-700/50 rounded">주요 지표 데이터 정리</li>
-      </ul>
-    </section>
-
-    <!-- 빠른 링크 섹션 -->
-    <section class="bg-slate-800 p-6 rounded-xl border border-slate-700">
-      <h2 class="text-lg font-semibold mb-4 text-emerald-400">🔗 빠른 바로가기</h2>
-      <div class="grid grid-cols-2 gap-2 text-sm">
-        <a href="https://mail.google.com" target="_blank" class="p-2 bg-slate-700/50 hover:bg-slate-700 rounded text-center">업무 메일</a>
-        <a href="https://calendar.google.com" target="_blank" class="p-2 bg-slate-700/50 hover:bg-slate-700 rounded text-center">캘린더</a>
-        <a href="https://drive.google.com" target="_blank" class="p-2 bg-slate-700/50 hover:bg-slate-700 rounded text-center">드라이브</a>
-        <a href="https://github.com" target="_blank" class="p-2 bg-slate-700/50 hover:bg-slate-700 rounded text-center">GitHub</a>
+    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+      <div class="glass rounded-2xl p-5">
+        <p class="text-slate-400 text-sm">오늘 할 일</p>
+        <p id="taskCount" class="text-3xl font-bold mt-2 text-sky-400">0</p>
+      </div>
+      <div class="glass rounded-2xl p-5">
+        <p class="text-slate-400 text-sm">완료한 항목</p>
+        <p id="doneCount" class="text-3xl font-bold mt-2 text-emerald-400">0</p>
+      </div>
+      <div class="glass rounded-2xl p-5">
+        <p class="text-slate-400 text-sm">데이터 항목</p>
+        <p id="recordCount" class="text-3xl font-bold mt-2 text-amber-400">0</p>
+      </div>
+      <div class="glass rounded-2xl p-5">
+        <p class="text-slate-400 text-sm">집중도</p>
+        <p id="focusScore" class="text-3xl font-bold mt-2 text-fuchsia-400">85%</p>
       </div>
     </section>
 
-    <!-- 메모 섹션 -->
-    <section class="bg-slate-800 p-6 rounded-xl border border-slate-700">
-      <h2 class="text-lg font-semibold mb-4 text-amber-400">📌 간이 메모장</h2>
-      <textarea class="w-full h-32 bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 resize-none focus:outline-none" placeholder="휘발성 메모를 적어두세요..."></textarea>
-    </section>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+      <section class="glass rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-sky-300">📝 오늘의 업무</h2>
+          <span class="text-xs text-slate-400">로컬 저장</span>
+        </div>
+
+        <form id="taskForm" class="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3 mb-4">
+          <input id="taskInput" type="text" placeholder="예: 고객 보고서 정리" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-sky-400" required>
+          <select id="taskPriority" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-sky-400">
+            <option value="high">중요</option>
+            <option value="normal" selected>보통</option>
+            <option value="low">낮음</option>
+          </select>
+          <button class="bg-sky-500 hover:bg-sky-400 rounded-xl px-4 py-2.5 font-medium transition">추가</button>
+        </form>
+
+        <ul id="taskList" class="space-y-2"></ul>
+      </section>
+
+      <section class="glass rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-amber-300">📊 데이터 관리</h2>
+          <span class="text-xs text-slate-400">개인 데이터</span>
+        </div>
+
+        <form id="recordForm" class="grid grid-cols-1 gap-3 mb-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input id="recordName" type="text" placeholder="항목명 (예: 월간 매출)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-amber-400" required>
+            <select id="recordCategory" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-amber-400">
+              <option value="매출">매출</option>
+              <option value="고객">고객</option>
+              <option value="운영">운영</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input id="recordValue" type="number" step="any" placeholder="숫자값 (예: 1230000)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-amber-400">
+            <input id="recordDate" type="date" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-amber-400">
+          </div>
+          <textarea id="recordNote" rows="3" placeholder="메모 또는 설명을 적어두세요" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-amber-400 resize-none"></textarea>
+          <button class="bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl px-4 py-2.5 font-semibold transition">저장</button>
+        </form>
+
+        <div id="recordList" class="space-y-2"></div>
+      </section>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <section class="glass rounded-2xl p-5">
+        <h2 class="text-xl font-semibold text-emerald-300 mb-4">🔗 빠른 바로가기</h2>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <a href="https://mail.google.com" target="_blank" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 text-center transition">업무 메일</a>
+          <a href="https://calendar.google.com" target="_blank" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 text-center transition">캘린더</a>
+          <a href="https://drive.google.com" target="_blank" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 text-center transition">드라이브</a>
+          <a href="https://github.com" target="_blank" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 text-center transition">GitHub</a>
+          <a href="https://notion.so" target="_blank" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 text-center transition">Notion</a>
+          <a href="https://slack.com" target="_blank" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 text-center transition">Slack</a>
+        </div>
+      </section>
+
+      <section class="glass rounded-2xl p-5">
+        <h2 class="text-xl font-semibold text-fuchsia-300 mb-4">📌 간이 메모장</h2>
+        <textarea id="noteBox" rows="10" placeholder="오늘 중요한 일을 적어두세요..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 resize-none focus:outline-none focus:border-fuchsia-400"></textarea>
+      </section>
+    </div>
   </div>
 
   <script>
+    const STORAGE_KEYS = {
+      tasks: 'personal-dashboard-tasks',
+      records: 'personal-dashboard-records',
+      note: 'personal-dashboard-note'
+    };
+
+    const taskForm = document.getElementById('taskForm');
+    const taskInput = document.getElementById('taskInput');
+    const taskPriority = document.getElementById('taskPriority');
+    const taskList = document.getElementById('taskList');
+    const recordForm = document.getElementById('recordForm');
+    const recordList = document.getElementById('recordList');
+    const noteBox = document.getElementById('noteBox');
+    const clock = document.getElementById('clock');
+
+    function getTasks() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.tasks)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveTasks(tasks) {
+      localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
+    }
+
+    function getRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.records)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveRecords(records) {
+      localStorage.setItem(STORAGE_KEYS.records, JSON.stringify(records));
+    }
+
     function updateClock() {
       const now = new Date();
-      document.getElementById('clock').innerText = now.toLocaleString('ko-KR');
+      clock.textContent = now.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
     }
-    setInterval(updateClock, 1000);
+
+    function renderTaskList() {
+      const tasks = getTasks();
+      const remaining = tasks.filter(task => !task.done).length;
+      const done = tasks.filter(task => task.done).length;
+      const focusScore = tasks.length ? Math.round((done / tasks.length) * 100) : 85;
+
+      document.getElementById('taskCount').textContent = remaining;
+      document.getElementById('doneCount').textContent = done;
+      document.getElementById('focusScore').textContent = `${focusScore}%`;
+
+      if (!tasks.length) {
+        taskList.innerHTML = '<li class="text-sm text-slate-400 p-3 bg-slate-900/70 rounded-xl border border-dashed border-slate-700">아직 등록된 업무가 없어요.</li>';
+        return;
+      }
+
+      taskList.innerHTML = tasks.map(task => {
+        const priorityClass = {
+          high: 'bg-rose-500/20 text-rose-300 border border-rose-500/30',
+          normal: 'bg-sky-500/20 text-sky-300 border border-sky-500/30',
+          low: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+        }[task.priority] || 'bg-slate-700 text-slate-300';
+
+        return `
+          <li class="flex items-center justify-between gap-3 bg-slate-900/70 rounded-xl p-3 border border-slate-700">
+            <div class="flex items-center gap-3 min-w-0">
+              <input type="checkbox" ${task.done ? 'checked' : ''} data-id="${task.id}" class="task-toggle h-4 w-4 accent-sky-400" />
+              <div class="min-w-0">
+                <p class="truncate ${task.done ? 'line-through text-slate-400' : 'text-slate-100'}">${task.text}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] px-2 py-1 rounded-full ${priorityClass}">${task.priority === 'high' ? '중요' : task.priority === 'low' ? '낮음' : '보통'}</span>
+              <button data-id="${task.id}" class="task-delete text-slate-400 hover:text-rose-300 text-sm">삭제</button>
+            </div>
+          </li>
+        `;
+      }).join('');
+    }
+
+    function renderRecords() {
+      const records = getRecords();
+      document.getElementById('recordCount').textContent = records.length;
+
+      if (!records.length) {
+        recordList.innerHTML = '<div class="text-sm text-slate-400 p-3 bg-slate-900/70 rounded-xl border border-dashed border-slate-700">저장된 데이터가 아직 없어요.</div>';
+        return;
+      }
+
+      recordList.innerHTML = records.map(record => `
+        <div class="bg-slate-900/70 border border-slate-700 rounded-xl p-3">
+          <div class="flex justify-between items-start gap-3">
+            <div>
+              <div class="font-medium text-slate-100">${record.name}</div>
+              <div class="text-xs text-slate-400 mt-1">${record.category} · ${record.date || '날짜 미지정'}</div>
+            </div>
+            <button data-id="${record.id}" class="record-delete text-xs text-rose-300 hover:text-rose-200">삭제</button>
+          </div>
+          <div class="mt-2 text-lg font-semibold text-amber-300">${record.value ? Number(record.value).toLocaleString() : '값 없음'}</div>
+          <div class="mt-2 text-sm text-slate-300 whitespace-pre-wrap">${record.note || '설명 없음'}</div>
+        </div>
+      `).join('');
+    }
+
+    taskForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const text = taskInput.value.trim();
+      if (!text) return;
+
+      const tasks = getTasks();
+      tasks.unshift({
+        id: Date.now(),
+        text,
+        priority: taskPriority.value,
+        done: false
+      });
+
+      saveTasks(tasks);
+      renderTaskList();
+      taskForm.reset();
+      taskPriority.value = 'normal';
+      taskInput.focus();
+    });
+
+    taskList.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target.classList.contains('task-delete')) {
+        const id = Number(target.dataset.id);
+        const tasks = getTasks().filter(task => task.id !== id);
+        saveTasks(tasks);
+        renderTaskList();
+      }
+    });
+
+    taskList.addEventListener('change', (event) => {
+      if (event.target.classList.contains('task-toggle')) {
+        const id = Number(event.target.dataset.id);
+        const tasks = getTasks().map(task => {
+          if (task.id === id) {
+            return { ...task, done: event.target.checked };
+          }
+          return task;
+        });
+        saveTasks(tasks);
+        renderTaskList();
+      }
+    });
+
+    recordForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = document.getElementById('recordName').value.trim();
+      if (!name) return;
+
+      const records = getRecords();
+      records.unshift({
+        id: Date.now(),
+        name,
+        category: document.getElementById('recordCategory').value,
+        value: document.getElementById('recordValue').value,
+        date: document.getElementById('recordDate').value || new Date().toISOString().slice(0, 10),
+        note: document.getElementById('recordNote').value.trim()
+      });
+
+      saveRecords(records);
+      renderRecords();
+      recordForm.reset();
+      document.getElementById('recordName').focus();
+    });
+
+    recordList.addEventListener('click', (event) => {
+      if (event.target.classList.contains('record-delete')) {
+        const id = Number(event.target.dataset.id);
+        const records = getRecords().filter(record => record.id !== id);
+        saveRecords(records);
+        renderRecords();
+      }
+    });
+
+    noteBox.addEventListener('input', () => {
+      localStorage.setItem(STORAGE_KEYS.note, noteBox.value);
+    });
+
+    document.getElementById('resetData').addEventListener('click', () => {
+      const confirmed = window.confirm('모든 로컬 데이터(업무, 데이터, 메모)를 삭제할까요?');
+      if (!confirmed) return;
+
+      localStorage.removeItem(STORAGE_KEYS.tasks);
+      localStorage.removeItem(STORAGE_KEYS.records);
+      localStorage.removeItem(STORAGE_KEYS.note);
+      noteBox.value = '';
+      renderTaskList();
+      renderRecords();
+    });
+
+    noteBox.value = localStorage.getItem(STORAGE_KEYS.note) || '';
+    renderTaskList();
+    renderRecords();
     updateClock();
+    setInterval(updateClock, 1000);
   </script>
 </body>
 </html>
